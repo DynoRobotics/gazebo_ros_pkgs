@@ -237,12 +237,13 @@ void GazeboRosPlanarMovePrivate::OnUpdate(const gazebo::common::UpdateInfo & _in
 #endif
   if (seconds_since_last_update >= update_period_) {
     ignition::math::Pose3d pose = model_->WorldPose();
+    auto velocity = model_->WorldLinearVel();
     auto yaw = static_cast<float>(pose.Rot().Yaw());
     model_->SetLinearVel(
       ignition::math::Vector3d(
         target_cmd_vel_.linear.x * cosf(yaw) - target_cmd_vel_.linear.y * sinf(yaw),
         target_cmd_vel_.linear.y * cosf(yaw) + target_cmd_vel_.linear.x * sinf(yaw),
-        0));
+        velocity.Z() - 9.8 * update_period_));
     model_->SetAngularVel(ignition::math::Vector3d(0, 0, target_cmd_vel_.angular.z));
 
     last_update_time_ = _info.simTime;
