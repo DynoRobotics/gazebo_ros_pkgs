@@ -41,7 +41,7 @@ find_package(trajectory_msgs REQUIRED)
 
 link_directories(${gazebo_dev_LIBRARY_DIRS})
 
-option(ENABLE_PROFILER "Enable Ignition Profiler" FALSE)
+option(ENABLE_PROFILER "Enable Ignition Profiler" TRUE)
 if(ENABLE_PROFILER)
   find_package(ignition-common3 QUIET COMPONENTS profiler)
   if(ignition-common3_FOUND)
@@ -398,6 +398,24 @@ if(ENABLE_PROFILER)
   target_link_libraries(gazebo_ros_vacuum_gripper ${ignition-common3_LIBRARIES})
 endif()
 
+# gazebo_ros_link_latch
+add_library(gazebo_ros_link_latch SHARED
+  src/gazebo_ros_link_latch.cpp
+)
+target_include_directories(gazebo_ros_link_latch PUBLIC include)
+ament_target_dependencies(gazebo_ros_link_latch
+  "gazebo_ros"
+  "gazebo_dev"
+  "rclcpp"
+  "std_msgs"
+  "std_srvs"
+)
+target_link_libraries(gazebo_ros_link_latch ${GAZEBO_LIBRARIES})
+if(ENABLE_PROFILER)
+  target_include_directories(gazebo_ros_link_latch PUBLIC ${ignition-common3_INCLUDE_DIRS})
+  target_link_libraries(gazebo_ros_link_latch ${ignition-common3_LIBRARIES})
+endif()
+
 # gazebo_ros_joint_pose_trajectory
 add_library(gazebo_ros_joint_pose_trajectory SHARED
   src/gazebo_ros_joint_pose_trajectory.cpp
@@ -521,6 +539,7 @@ install(TARGETS
     gazebo_ros_gps_sensor
     gazebo_ros_joint_pose_trajectory
     gazebo_ros_joint_state_publisher
+    gazebo_ros_link_latch
     gazebo_ros_planar_move
     gazebo_ros_projector
     gazebo_ros_ray_sensor
